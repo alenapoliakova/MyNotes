@@ -56,18 +56,3 @@ class NotesDB:
     def view_notes(self):
         """Метод для просмотра всей информации о заметках"""
         print(self.cur.execute("SELECT * FROM Notes").fetchall())
-
-
-# db = NotesDB()
-# db.add_user('alena_poliakova')
-# db.add_user('alena_poliakova')
-# db.add_note('alena_poliakova', 'hello, its me')
-#
-# # print(db.cur.execute("SELECT * FROM Users").fetchall())
-#
-# db.view_users()
-# db.view_notes()
-#
-# db.conn.commit()
-
-
