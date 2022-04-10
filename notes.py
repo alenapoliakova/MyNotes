@@ -1,13 +1,10 @@
 from fastapi import FastAPI
-from enum import Enum
+from models import MyNote
+from database.db import NotesDB
 
 
 app = FastAPI()
-
-
-class MyNote(str, Enum):
-    all_notes = "all notes"
-    five_recent_notes = "5 recent notes"
+db = NotesDB()
 
 
 @app.get("/")
@@ -16,27 +13,38 @@ def home():
 
 
 @app.get("/new_user/{login}")
+@app.post("/new_user/{login}")
 def add_new_user(login: str):
     """Добавление нового пользователя в БД с заметками"""
-    pass
+    if db.add_user(login):
+        return {'status': 200, 'text': f'User with login {login} successfully added to Notes'}
+    else:
+        return {'status': 400, 'text': f'User with login {login} already exists in Notes'}
 
 
-@app.get("/add_note/{login}")
-def add_note(login: str):
-    """Добавление нового пользователя в БД с заметками"""
-    pass
+@app.get("/add_note/{login}/{text}")
+@app.post("/add_note/{login}/{text}")
+def add_note(login: str, text: str):
+    """Добавление заметки по логину пользователя"""
+    if db.add_note(login, text):
+        return {'status': 200, 'text': 'Note successfully added to Notes'}
+    else:
+        return {'status': 400, 'text': f'No user with login={login}'}
 
 
-@app.get("/notes/{login}")
+@app.get("/notes/{operation}/{login}")
 def notes(operation: MyNote, login: str):
     """Вывести все заметки/5 заметок пользователя"""
     match operation:
         case MyNote.all_notes:
             # выгрузка из БД всех заметок пользователя по логину
-            return {'message': operation}
+            res = db.view_all_user_notes(login)
+            if res:
+                return {'status': 200, 'text': res}
+            return {'status': 400, 'text': f'No user with login={login}'}
         case MyNote.five_recent_notes:
             # выгрузка из БД 5 заметок пользователя по логину
-            return {'message': operation}
-        # case _:   -  FastAPI сам выдаст подробную ошибку
-        #     return {"message": f"Error, your GET request not in {''.join([getattr(MyNote, method) for method in dir(MyNote) if not method.startswith('__')])}"}
-
+            res = db.view_all_user_notes(login)
+            if res:
+                return {'status': 200, 'text': res[0:5]}
+            return {'status': 400, 'text': f'No user with login={login}'}
