@@ -12,8 +12,8 @@ def home():
     return {"message": "Hello, it is API for your notes"}
 
 
-@app.get("/new_user/{login}")
-@app.post("/new_user/{login}")
+@app.get("/add_user/{login}")
+@app.post("/add_user/{login}")
 def add_new_user(login: str):
     """Добавление нового пользователя в БД с заметками"""
     if db.add_user(login):
@@ -33,7 +33,7 @@ def add_note(login: str, text: str):
 
 
 @app.get("/notes/{operation}/{login}")
-def notes(operation: MyNote, login: str):
+def get_some_notes(operation: MyNote, login: str):
     """Вывести все заметки/5 заметок пользователя"""
     match operation:
         case MyNote.all_notes:
